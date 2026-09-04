@@ -45,38 +45,33 @@ npm run serve
 | `build:bun` | `bun --bun next build` | Build with Bun (fallback) |
 | `clean` | `rm -rf .next out` | Clean build artifacts |
 
-## 🌐 Deployment Options
+## 🌐 Production: Vercel
 
-### 1. Vercel (Recommended)
-```bash
-# Install Vercel CLI
-npm i -g vercel
+Domain **`qna.faip.pro`**. Backend API: **`https://api.qna.faip.pro`** (`core-tuyensinh` trên EC2).
 
-# Deploy
-vercel --prod
-```
+### Lần đầu
 
-### 2. Netlify
-1. Build the project: `npm run build`
-2. Upload the `/out` folder to Netlify
-3. Or connect your Git repository
+1. Vercel → **Add New Project** → import repo `ai-nes/dashboard-chatbot-fe`.
+   - Framework preset: **Next.js** (tự nhận). Root directory: `./`.
+   - Build command / output: để mặc định — Next `output: 'export'`, Vercel serve `out/`.
+2. **Settings → Environment Variables** (Production, và Preview nếu cần):
 
-### 3. GitHub Pages
-1. Build: `npm run build`
-2. Push `/out` contents to `gh-pages` branch
-3. Enable GitHub Pages in repository settings
+   | Name | Value |
+   |------|-------|
+   | `NEXT_PUBLIC_API_BASE_URL` | `https://api.qna.faip.pro` |
 
-### 4. AWS S3 + CloudFront
-1. Build: `npm run build`
-2. Upload `/out` contents to S3 bucket
-3. Configure S3 for static website hosting
-4. Set up CloudFront distribution
+   Biến `NEXT_PUBLIC_*` bake vào bundle lúc build → đổi giá trị phải **redeploy**.
+3. **Settings → Domains** → thêm `qna.faip.pro`.
+   - Cloudflare DNS: `CNAME qna → cname.vercel-dns.com`, **DNS only** (tắt proxy màu cam) để Vercel cấp cert.
+4. Vercel Git integration tự deploy mỗi khi push `main` (và tạo Preview cho PR).
 
-### 5. Any Static Hosting
-The `/out` directory contains all static files needed:
-- Upload entire `/out` folder contents
-- Set index.html as default document
-- Configure 404.html for error handling
+### CI
+
+`.github/workflows/ci.yml` chỉ chạy lint + type-check + build check. Không build/push Docker nữa — Vercel lo deploy.
+
+### Fallback: static hosting khác
+
+`bun run build` → thư mục `out/` là static thuần, deploy được lên Netlify / Cloudflare Pages / S3+CloudFront / GitHub Pages (set `index.html` default, `404.html` cho lỗi). Dockerfile trong `docker/` vẫn dùng được nếu cần self-host.
 
 ## ⚙️ Configuration
 
@@ -142,13 +137,12 @@ Route (app)                    Size     First Load JS
 
 ## 🎯 Production Checklist
 
-- [ ] Run `npm run build` successfully
-- [ ] Test with `npm run preview`
-- [ ] Check all routes work correctly
-- [ ] Verify API calls work in production
-- [ ] Test responsive design
-- [ ] Check console for errors
-- [ ] Validate performance metrics
+- [ ] Vercel project imported, env `NEXT_PUBLIC_API_BASE_URL=https://api.qna.faip.pro`
+- [ ] Domain `qna.faip.pro` added; Cloudflare `CNAME qna → cname.vercel-dns.com` (DNS only)
+- [ ] BE `CORS_ORIGINS` chứa `https://qna.faip.pro`
+- [ ] Push `main` → Vercel deploy xanh, `ci.yml` xanh
+- [ ] Đăng nhập được, API calls không lỗi CORS (DevTools → Network)
+- [ ] Check console for errors, responsive, performance
 
 ## 📝 Notes
 

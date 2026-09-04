@@ -1,0 +1,71 @@
+# Lint + typecheck + build check. Deploy is handled by Vercel's Git integration
+# (project domain qna.faip.pro, env NEXT_PUBLIC_API_BASE_URL set in Vercel).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: fpt-admission-dashboard-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'pull_request' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - run: bun install --frozen-lockfile
+
+      - run: bun run lint
+
+      - run: bun run type-check
+
+  build:
+    name: Build check
+    needs: [test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-next-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Static export build
+        run: bun run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: https://api.qna.faip.pro
+          NODE_OPTIONS: --max-old-space-size=8192
