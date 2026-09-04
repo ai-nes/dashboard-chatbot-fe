@@ -47,7 +47,7 @@ npm run serve
 
 ## 🌐 Production: Vercel
 
-Domain **`qna.faip.pro`**. Backend API: **`https://api.qna.faip.pro`** (`core-tuyensinh` trên EC2).
+Domain **`qna.faip.pro`**. Backend API: **`https://qna-api.faip.pro`** (`core-tuyensinh` trên EC2).
 
 ### Lần đầu
 
@@ -58,7 +58,7 @@ Domain **`qna.faip.pro`**. Backend API: **`https://api.qna.faip.pro`** (`core-tu
 
    | Name | Value |
    |------|-------|
-   | `NEXT_PUBLIC_API_BASE_URL` | `https://api.qna.faip.pro` |
+   | `NEXT_PUBLIC_API_BASE_URL` | `https://qna-api.faip.pro` |
 
    Biến `NEXT_PUBLIC_*` bake vào bundle lúc build → đổi giá trị phải **redeploy**.
 3. **Settings → Domains** → thêm `qna.faip.pro`.
@@ -137,7 +137,7 @@ Route (app)                    Size     First Load JS
 
 ## 🎯 Production Checklist
 
-- [ ] Vercel project imported, env `NEXT_PUBLIC_API_BASE_URL=https://api.qna.faip.pro`
+- [ ] Vercel project imported, env `NEXT_PUBLIC_API_BASE_URL=https://qna-api.faip.pro`
 - [ ] Domain `qna.faip.pro` added; Cloudflare `CNAME qna → cname.vercel-dns.com` (DNS only)
 - [ ] BE `CORS_ORIGINS` chứa `https://qna.faip.pro`
 - [ ] Push `main` → Vercel deploy xanh, `ci.yml` xanh

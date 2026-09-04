@@ -67,5 +67,5 @@ jobs:
       - name: Static export build
         run: bun run build
         env:
-          NEXT_PUBLIC_API_BASE_URL: https://api.qna.faip.pro
+          NEXT_PUBLIC_API_BASE_URL: https://qna-api.faip.pro
           NODE_OPTIONS: --max-old-space-size=8192
